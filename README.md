@@ -1,1 +1,1 @@
-# CS6476
+# CS6476 Computer Vision
