@@ -1,0 +1,355 @@
+<html>
+<head>
+<title>Computer Vision Project</title>
+<link href='http://fonts.googleapis.com/css?family=Nunito:300|Crimson+Text|Droid+Sans+Mono' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" title="Default" href="styles/github.css">
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></script>  
+
+<link rel="stylesheet" href="highlighting/styles/default.css">
+<script src="highlighting/highlight.pack.js"></script>
+
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+
+<style type="text/css">
+body {
+	margin: 0px;
+	width: 100%;
+	font-family: 'Crimson Text', serif;
+	font-size: 20px;
+	background: #fcfcfc;
+}
+h1 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 28px;
+	margin: 25px 0px 0px 0px;
+	text-transform: lowercase;
+
+}
+
+h2 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 32px;
+	margin: 15px 0px 35px 0px;
+	color: #333;	
+	word-spacing: 3px;
+}
+
+h3 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 26px;
+	margin: 10px 0px 10px 0px;
+	color: #333;
+	word-spacing: 2px;
+}
+h4 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 22px;
+	margin: 10px 0px 10px 0px;
+	color: #333;
+	word-spacing: 2px;
+}
+
+h5 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 18px;
+	margin: 10px 0px 10px 0px;
+	color: #111;
+	word-spacing: 2px;
+}
+
+p, li {
+	color: #444;
+}
+
+a {
+	color: #DE3737;
+}
+
+.container {
+	margin: 0px auto 0px auto;
+	width: 960px;
+}
+
+#header {
+	background: #333;
+	width: 100%;
+}
+
+#headersub {
+	color: #ccc;
+	width: 960px;
+	margin: 0px auto 0px auto;
+	padding: 20px 0px 20px 0px;
+}
+
+.chart {
+	width: 480px;
+}
+.lol {
+	font-size: 16px;
+	color: #888;
+	font-style: italic;
+}
+.sep {
+	height: 1px;
+	width: 100%;
+	background: #999;
+	margin: 20px 0px 20px 0px;
+}
+.footer{
+	font-size: 16px;
+}
+.latex {
+	width: 100%;
+}
+
+.latex img {
+	display: block;
+	margin: 0px auto 0px auto;
+}
+
+pre {
+	font-family: 'Droid Sans Mono';
+	font-size: 14px;
+}
+
+td img {
+  vertical-align: middle;
+}
+
+#contents a {
+}
+</style>
+<script type="text/javascript">
+    hljs.initHighlightingOnLoad();
+</script>
+</head>
+<body>
+<div id="header" >
+<div id="headersub">
+<h1><span style="color: #DE3737">Binze Cai</span></h1>
+</div>
+</div>
+<div class="container">
+
+<h2>Project 1: Image Filtering and Hybrid Images</h2>
+
+<div style="float: right; padding: 20px">
+<img src="cat.bmp", height="202", width="230" />
+<p style="font-size: 20px; text-align:center">Example input image.</p>
+</div>
+	Basically, image filtering is the compute function of local neighborhood at each position. It is widely used in 
+	denoising, extracting texture and so on. In this project, image filtering is applied to extract the low and high frequency 
+	of an image separately and then they are combined into a hybrid image. This project mainly implements three functions with Python:
+<p>
+		A. <code>my_imfilter</code> function is imitating <code>filter2D</code> 
+		function in OpenCV library with some key features listed below:
+</p>
+<ol>
+<li>Support images in different color spaces</li>
+<li>Support arbitrary shaped filters</li>
+<li>Reflected padding</li>
+<li>Normalized resolution in output image</li>
+
+</br>
+
+
+<div style="text-align:center;">
+	<div class = "row">
+		<div class="col-4">
+			<img src="identity_image.jpg", height="202", width="230" />
+			<figcaption> (a)</figcaption>
+		</div>
+		<div class="col-4">
+			<img src="blur_image.jpg", height="202", width="230" />
+			<figcaption> (b) </figcaption>
+		</div>
+		<div class="col-4">
+			<img src="large_blur_image.jpg", height="202", width="230" />
+			<figcaption> (c) </figcaption>
+		</div>
+	</div>
+	<div class = "row">
+		<div class="col-4">
+			<img src="sobel_image.jpg", height="202", width="230" />
+			<figcaption> (d)</figcaption>
+		</div>
+		<div class="col-4">
+			<img src="laplacian_image.jpg", height="202", width="230" />
+			<figcaption> (e) </figcaption>
+		</div>
+		<div class="col-4">
+			<img src="high_pass_image.jpg", height="202", width="230" />
+			<figcaption> (f) </figcaption>
+		</div>
+	</div>
+</div>
+<p style="font-size: 20px; text-align:center">
+Figure1: (a) identity filter(3x3) (b) box filter(3x3) (c) gaussian filter(25x25)</br>
+		     (d) sobel filter(horizon 3x3)  (e) laplacian filter(3x3) (d) high pass filter
+</p>
+<p>
+	The result shows that with the same filter function, different types and shape of filters can 
+	be applied to an image. Viewed from Figure1(c), the blurry effect is more intense with larger 
+	filter. Figure1(d) shows that sobel filter is good at extracting edge features. The feature of
+	Figure1(f) can only be seen within a short distance. 
+</p>
+</ol>
+<p>
+	B. <code>myfft_imfilter</code> function implements the image filtering in frequency domain. In order to do multiplcation
+	after FFT on both image and filter, the shape of these two matrices should be exactly the same. Here we take a 
+	gaussian filter as an example. 
+	<div style="text-align:center;">
+		<img src="fft_gaussian_filter.jpg", height="202", width="230" />
+	</div>
+</p>
+
+<p style="font-size: 20px; text-align:center">Figure2: Gaussian filtering with FFT</p>
+<p>
+	The implementation procedure is mostly the same as in the lectures' PPT.
+	<div style="text-align:center;">
+		<img src="process.jpg", height="250", width="300" />
+	</div> 
+</p>
+<p style="font-size: 20px; text-align:center">Figure3: Image filtering in frenquency domain</p>
+<p>
+	However, a detail that needs to be noticed is that after conducting fft on a matrix, a fftshift is needed right after
+	fft. Otherwise the frequency domain will not match the spatial domian, which leads to a bad output. It is the same 
+	when doing inverse fft. A figure below will helps you understand.
+	<pre><code>
+		# test_image is the input image
+		plt.subplot(121)
+		plt.plot(abs(fft2(test_image))[128, :])
+
+		plt.subplot(122)
+		plt.plot(abs(fftshift(fft2(test_image)))[128, :])
+	</code></pre>
+	<div style="text-align:center;">
+		<img src="fft_explanation.jpg", height="220", width="500" />
+	</div> 
+</p>
+<p style="font-size: 20px; text-align:center">Figure4: Move the DC component to fft to the center of the spectrum </p>
+<p> 
+	C. <code>create_hybrid_image</code> function is a simplied version of the SIGGRAPH 2006 paper by Olivia, Torrabla and Schyns.
+	It combines low frenquency of an image and the high frenquency of another image with a linear function. The combining factor
+	is determined as 0.5 after several experiments. And in this project, the gaussian filter is applied  </br>
+
+	<p> For the example shown at the top of the page, the two original images look like this: </p>
+	<div style="text-align:center;">
+		<div class = "row">
+			<div class="col-6">
+				<img src="dog.bmp", height="202", width="230" />
+			</div>
+			<div class="col-6">
+				<img src="cat.bmp", height="202", width="230" />
+			</div>
+		</div>
+	</div>
+	<p> The low-pass (blurred) and high-pass versions of these images look like this:</p>
+	<div style="text-align:center;">
+		<div class = "row">
+			<div class="col-6">
+				<img src="low_frequencies.jpg", height="202", width="230" />
+			</div>
+			<div class="col-6">
+				<img src="high_pass_image.jpg", height="202", width="230" />
+			</div>
+		</div>
+	</div>
+	<p>The hybrid version looks like this:</p>
+	<div style="text-align:center;">
+		<img src="hybrid_image.jpg", height="253", width="287" />
+	</div> 
+</p>
+
+<h3>More examples</h3>
+More examples are given here to show the rubustness of the filtering implemented. </br>
+<div style="text-align:center;">
+	<div class = "row">
+		<div class="col-6">
+			<img src="bicycle.bmp", height="202", width="230" />
+			<figcaption> bicycle </figcaption>
+		</div>
+		<div class="col-6">
+			<img src="motorcycle.bmp", height="202", width="230" />
+			<figcaption> motorcycle </figcaption>
+		</div>
+	</div>
+	</br>
+	<img src="hybrid_image_scales2.jpg", height="300", width="600" />
+	<figcaption> motorbicycle </figcaption>
+	</br>
+	<div class = "row">
+		<div class="col-6">
+			<img src="bird.bmp", height="202", width="230" />
+			<figcaption> bird </figcaption>
+		</div>
+		<div class="col-6">
+			<img src="plane.bmp", height="202", width="230" />
+			<figcaption> plane </figcaption>
+		</div>
+	</div>
+	</br>
+	<img src="hybrid_image_scales3.jpg", height="300", width="600" />
+	<figcaption> birdplane </figcaption>
+	</br>
+	<div class = "row">
+		<div class="col-6">
+			<img src="einstein.bmp", height="202", width="230" />
+			<figcaption> einstein </figcaption>
+		</div>
+		<div class="col-6">
+			<img src="marilyn.bmp", height="202", width="230" />
+			<figcaption> marilyn </figcaption>
+		</div>
+	</div>
+	</br>
+	<img src="hybrid_image_scales4.jpg", height="300", width="600" />
+	<figcaption> brainy superstar </figcaption>
+	
+	</br>
+	<div class = "row">
+		<div class="col-6">
+			<img src="fish.bmp", height="202", width="230" />
+			<figcaption> fish</figcaption>
+		</div>
+		<div class="col-6">
+			<img src="submarine.bmp", height="202", width="230" />
+			<figcaption> submarine </figcaption>
+		</div>
+	</div>
+	</br>
+	<img src="hybrid_image_scales5.jpg", height="300", width="600" />
+	<figcaption> fish-submarine </figcaption>
+
+	</br>
+	<div class = "row">
+		<div class="col-6">
+			<img src="yueyunpeng.jpg", height="202", width="230" />
+			<figcaption> a Chinese comic star </figcaption>
+		</div>
+		<div class="col-6">
+			<img src="zhouzhou.jpg", height="202", width="230" />
+			<figcaption> my best friend </figcaption>
+		</div>
+	</div>
+	</br>
+	<img src="hybrid_image_scales1.jpg", height="300", width="600" />
+	<figcaption> I think my friend has a chance to be comic star </figcaption>
+</div>
+
+<h3> Conclusion</h3>
+<p> 
+	The above result shows that the transition between low pass and high pass filters
+	are not obvious. Among the image pyramids, the high frequency feature of the first image is clean.
+	And the low frenquency feature seems to be unrecognizable. The second and third image looks like a 
+	mixture of both images. And in the fourth and fifth picture, the low frequency channel dominates, which
+	comes to the same conclusion in the given paper that in short viewing distance, the high frequency feature
+	is clearer. However, as the distance gets larger, the low frenquency feature dominates.
+</p>
+

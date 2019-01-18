@@ -1,0 +1,387 @@
+<html>
+<head>
+<title>Computer Vision Project</title>
+<link href='http://fonts.googleapis.com/css?family=Nunito:300|Crimson+Text|Droid+Sans+Mono' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" title="Default" href="styles/github.css">
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></script>  
+
+<link rel="stylesheet" href="highlighting/styles/default.css">
+<script src="highlighting/highlight.pack.js"></script>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+
+<style type="text/css">
+body {
+	margin: 0px;
+	width: 100%;
+	font-family: 'Crimson Text', serif;
+	font-size: 20px;
+	background: #fcfcfc;
+}
+h1 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 28px;
+	margin: 25px 0px 0px 0px;
+	text-transform: lowercase;
+
+}
+
+h2 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 32px;
+	margin: 15px 0px 35px 0px;
+	color: #333;	
+	word-spacing: 3px;
+}
+
+h3 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 26px;
+	margin: 10px 0px 10px 0px;
+	color: #333;
+	word-spacing: 2px;
+}
+h4 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 22px;
+	margin: 10px 0px 10px 0px;
+	color: #333;
+	word-spacing: 2px;
+}
+
+h5 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 18px;
+	margin: 10px 0px 10px 0px;
+	color: #111;
+	word-spacing: 2px;
+}
+
+p, li {
+	color: #444;
+}
+
+a {
+	color: #DE3737;
+}
+
+.container {
+	margin: 0px auto 0px auto;
+	width: 960px;
+}
+
+#header {
+	background: #333;
+	width: 100%;
+}
+
+#headersub {
+	color: #ccc;
+	width: 960px;
+	margin: 0px auto 0px auto;
+	padding: 20px 0px 20px 0px;
+}
+
+.chart {
+	width: 480px;
+}
+.lol {
+	font-size: 16px;
+	color: #888;
+	font-style: italic;
+}
+.sep {
+	height: 1px;
+	width: 100%;
+	background: #999;
+	margin: 20px 0px 20px 0px;
+}
+.footer{
+	font-size: 16px;
+}
+.latex {
+	width: 100%;
+}
+
+.latex img {
+	display: block;
+	margin: 0px auto 0px auto;
+}
+
+pre {
+	font-family: 'Droid Sans Mono';
+	font-size: 14px;
+}
+
+td img {
+  vertical-align: middle;
+}
+
+#contents a {
+}
+</style>
+<script type="text/javascript">
+    hljs.initHighlightingOnLoad();
+</script>
+</head>
+<body>
+<div id="header" >
+<div id="headersub">
+<h1><span style="color: #DE3737">Binze Cai</span></h1>
+</div>
+</div>
+<div class="container">
+
+<h2>Project 3: Camera Calibration and Fundamental Matrix Estimation with RANSAC</h2>
+
+
+<p> 	
+	In this project, several tasks has been done. 
+	<ol>
+	<li> Estimate camera center coordinates given corresponding 2D and 3D points in one scene.</li>
+	<li> Estimate fundamental matrix given corresponding 2D points across two related images with RANSAC.</li>
+	</ol>
+</p>
+<p>
+	A. Estimate camera center. The equation of projecting 3D point to 2D point is as below. <br>
+	<div style="text-align:center;">
+		<div class = "row">
+			<div class="col-12">
+				<img src="camera_center.png", height="300", width="500"/>
+				<figcaption> Figure1: solve camera parameters</figcaption>
+			</div>
+		</div>
+	</div>
+	Note that here matrix M is not a square matrix and therefore it is not simply invertible. Therefore, a linear least square
+	is used to solve M. In this project, set m<sub>34</sub> equals to 1 and the equation comes to a Ax = b form:
+	<div style="text-align:center;">
+		<div class = "row">
+			<div class="col-12">
+				<img src="camera_center2.png", height="300", width="500" />
+				<figcaption> Figure2: Math basis in solution1</figcaption>
+			</div>
+		</div>
+	</div>
+Here, (X, Y, Z) is the world 3D coordinates and (u, v) is the corresponding 2D pixels. The key point to solve this question is 
+to put the point coordinates to the right place in matrix A and use np.linalg.lstsq() to solve parameters.
+The estimated projection matrix is <b>[[0.768, -0.494, -0.023, 0.007], [-0.085, -0.091, -0.9065, -0.088], [0.1827, 0.2988, -0.074, 1]]</b>.
+And the total residual compared with ground truth is 0.0445, which is smaller than required 1. 
+<br>
+	<div style="text-align:center;">
+		<div class = "row">
+			<div class="col-12">
+				<img src="camera_center3.png", height="150", width="500" />
+				<figcaption></figcaption>
+			</div>
+		</div>
+	</div>
+	<div style="text-align:center;">
+		<div class = "row">
+			<div class="col-12">
+				<img src="1.jpg", height="350", width="500" />
+				<figcaption> Figure3: Result of projection matrix estimation</figcaption>
+			</div>
+		</div>
+	</div>
+After getting matrix M, it is possible to tease it apart into the more familiar and more useful matrix K of intrinsic parameters 
+and matrix [R | T] of extrinsic parameters. Note that M = (Q | m<sub>4</sub>). Therefore, camera center C can be solved by:
+<div style="text-align:center;">
+	<div class = "row">
+		<div class="col-12">
+			<img src="camera_center4.png", height="100", width="200" />
+			<figcaption> Figure4: Math basis to solve camera center</figcaption>
+		</div>
+	</div>
+</div>
+Here Q is just the first 3 columns in matrix M and m<sub>4</sub> is the 4th column. And we just simply muliply them.
+In this case, the estimated location of the camera is <b>(-1.5126, -2.3517, 0.2827)</b>. In project hints, the given camera 
+center is (-1.5125, -2.3515, 0.2826), which is very close to my answer. <br>
+
+<p>
+	B. Estimate fundamental matrix with RANSAC. It has two parts: a. calculate fundamental matrix; b. get a robust one with RANSAC.
+	To do part a, a 8-points algorithm is implemented. It is named 8-points because it requires 8 corresponding pairs to
+	solve F. Though F is a 3x3 matrix with 9 values, f<sub>33</sub> is contraint by the system of equations. Therefore, 
+	only the remaining 8 parameters needs additional points information. So first we should write down the system of equations as 
+	below and then we can solve it with numpy SVD. It is worth to mention that the V matirx calculated by np.linalg.svd() has a 
+	transpose relationship with matlab's version. 
+<div style="text-align:center;">
+	<div class = "row">
+		<div class="col-12">
+			<img src="fundamental_matrix1.png", height="350", width="700" />
+			<figcaption> Figure5: Write down the system of equations.</figcaption>
+		</div>
+	</div>
+</div>
+
+	Next is to enforce singularity constraint. The reason to do so is that the homogeneous only contains two dimension information, 
+	but it acctually has 3 dimensions. So rank of F matrix is 2 and we need to enforce singularity contraint otherwise epipolar lines 
+	are not coincident. So we use svd on F and then set the last diagonal value of S to 0. <br>
+
+  
+	<div style="text-align:center;">
+		<div class = "row">
+			<div class="col-12">
+				<img src="fundamental_matrix2.png", height="400", width="700" />
+				<figcaption> Figure6: Reasons to do normalization</figcaption>
+			</div>
+		</div>
+	</div>
+	Finally is the normalization. Matrix A is calculated by muliplying image coordinates. So the scale of value may vary. 
+	Therefore, a normalization here is to improve the numerical condition. In this project, the normalized coordinates can 
+	be computed by:
+	<div style="text-align:center;">
+		<div class = "row">
+			<div class="col-12">
+				<img src="fundamental_matrix3.png", height="100", width="300" />
+				<figcaption> Figure7: coordinates normalizatn</figcaption>
+			</div>
+		</div>
+	</div>  
+	Here c<sub>u</sub> and c<sub>v</sub> is mean of u and v coordinate. And s is the standard deviation after substracting the means.
+	After computing normalized F, the original version can be computed by:
+	<div style="text-align:center;">
+		<div class = "row">
+			<div class="col-12">
+				<img src="fundamental_matrix4.png", height="60", width="200" />
+				<figcaption> Figure8: denormalize fundamental matrix</figcaption>
+			</div>
+		</div>
+	</div> 
+	Epipolar lines are drawn to evaluate the estimation result of fundamental matrix with given points and images.
+	<div style="text-align:center;">
+		<div class = "row">
+			<div class="col-6">
+				<img src="3.jpg", height="300", width="400" />
+				<figcaption> (a) epipolar lines</figcaption>
+			</div>
+			<div class="col-6">
+				<img src="4.jpg", height="300", width="400" />
+				<figcaption> (b) epipolar lines</figcaption>
+			</div>
+		</div>
+		<div class = "row">
+			<div class="col-12">
+				<img src="fundamental_matrix5.png", height="150", width="500" />
+				<figcaption> (c) estimated fundamental matrix of pic_a and pic_b</figcaption>
+			</div>
+		</div>
+	</div>
+<p style="font-size: 20px; text-align:center">
+Figure9: Evaluation of fundamental matrix
+</p>
+From above pictures, it can be seen that the epipolar lines have crossed through each pair of corresponding points,
+which shows a good result. 
+</p>
+	
+<p>
+	After validating fundamental matrix implementation, the final step is to adjust F with RANSAC, which is like a 
+	regression of fundamental matrix to remove multiple outliers. The procedure of RANSAC is listed below:
+	<ol>
+	<li> Sample (randomly) the number of points required to fit the model </li>
+	<li> Solve for model parameters using samples </li>
+	<li> Score by the fraction of inliers within a preset threshold of the model </li>
+	</ol>
+	In this case, step1 means to sample several corresponding points(>8 pairs) to compute parameters for fundamental fundamental_matrix. 
+	And then x'Fx is used as a quantatitive index to classify inliers and outliers. x'Fx should be very small if the 
+	fundamental matrix is correctly computed and with ground truth matching pairs. Remember that RANSAC has random characteristics, which 
+	means that with fewer iterations, it is possible that it will not converge to a global solution. <br>
+
+	Considering the computing efficiency, the iteration step is set 2000 and the threshold is 0.05. This preset parameters will go 
+	through all experiment images. 
+</p>
+
+<h3>Test Result</h3>
+threshold: 0.05<br>
+iterations: 2000<br>
+<br>
+1. Mount Rushmore
+<div style="text-align:center;">
+		<div class = "row">
+			<div class="col-12">
+				<img src="MR0.jpg", height="400", width="500" />
+				<figcaption>(a): matching points</figcaption>
+			</div>
+		</div>
+		<div class = "row">
+			<div class="col-6">
+				<img src="MR1.jpg", height="300", width="500" />
+				<figcaption>(b): epipolar lines </figcaption>
+			</div>
+			<div class="col-6">
+				<img src="MR2.jpg", height="300", width="500" />
+				<figcaption>(c): epipolar lines </figcaption>
+			</div>
+		</div>
+</div>
+2. Notre Dame
+<div style="text-align:center;">
+		<div class = "row">
+			<div class="col-12">
+				<img src="ND0.jpg", height="400", width="500" />
+				<figcaption>(a): matching points</figcaption>
+			</div>
+		</div>
+		<div class = "row">
+			<div class="col-6">
+				<img src="ND1.jpg", height="300", width="500" />
+				<figcaption>(b): epipolar lines </figcaption>
+			</div>
+			<div class="col-6">
+				<img src="ND2.jpg", height="300", width="500" />
+				<figcaption>(c): epipolar lines </figcaption>
+			</div>
+		</div>
+</div>
+
+3. Episcopal Gaudi
+<div style="text-align:center;">
+		<div class = "row">
+			<div class="col-12">
+				<img src="EG0.jpg", height="400", width="500" />
+				<figcaption>(a): matching points</figcaption>
+			</div>
+		</div>
+		<div class = "row">
+			<div class="col-6">
+				<img src="EG1.jpg", height="300", width="500" />
+				<figcaption>(b): epipolar lines </figcaption>
+			</div>
+			<div class="col-6">
+				<img src="EG2.jpg", height="300", width="500" />
+				<figcaption>(c): epipolar lines </figcaption>
+			</div>
+		</div>
+</div>
+
+4. Woodruff Dorm
+<div style="text-align:center;">
+		<div class = "row">
+			<div class="col-12">
+				<img src="WD0.jpg", height="400", width="500" />
+				<figcaption>(a): matching points</figcaption>
+			</div>
+		</div>
+		<div class = "row">
+			<div class="col-6">
+				<img src="WD1.jpg", height="300", width="500" />
+				<figcaption>(b): epipolar lines </figcaption>
+			</div>
+			<div class="col-6">
+				<img src="WD2.jpg", height="300", width="500" />
+				<figcaption>(c): epipolar lines </figcaption>
+			</div>
+		</div>
+</div>
+
+In the above test result, Mount Rushmore and Notre Dame clearly show to converge at a single point outside the images.
+Woodruff Dorm converges in the center of the image. And Episcopal Gaudi shows a perfect result of epipolar lines.
+However, the RANSAC shows some randomness on the estimation of the "best" fundamental matrix in the experiment.
+</p>
+
+
+</body>
+</html>

@@ -1,0 +1,432 @@
+<html>
+<head>
+<title>Computer Vision Project</title>
+<link href='http://fonts.googleapis.com/css?family=Nunito:300|Crimson+Text|Droid+Sans+Mono' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" title="Default" href="styles/github.css">
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></script>  
+
+<link rel="stylesheet" href="highlighting/styles/default.css">
+<script src="highlighting/highlight.pack.js"></script>
+
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+
+<style type="text/css">
+body {
+	margin: 0px;
+	width: 100%;
+	font-family: 'Crimson Text', serif;
+	font-size: 20px;
+	background: #fcfcfc;
+}
+h1 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 28px;
+	margin: 25px 0px 0px 0px;
+	text-transform: lowercase;
+
+}
+
+h2 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 32px;
+	margin: 15px 0px 35px 0px;
+	color: #333;	
+	word-spacing: 3px;
+}
+
+h3 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 26px;
+	margin: 10px 0px 10px 0px;
+	color: #333;
+	word-spacing: 2px;
+}
+h4 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 22px;
+	margin: 10px 0px 10px 0px;
+	color: #333;
+	word-spacing: 2px;
+}
+
+h5 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 18px;
+	margin: 10px 0px 10px 0px;
+	color: #111;
+	word-spacing: 2px;
+}
+
+p, li {
+	color: #444;
+}
+
+a {
+	color: #DE3737;
+}
+
+.container {
+	margin: 0px auto 0px auto;
+	width: 960px;
+}
+
+#header {
+	background: #333;
+	width: 100%;
+}
+
+#headersub {
+	color: #ccc;
+	width: 960px;
+	margin: 0px auto 0px auto;
+	padding: 20px 0px 20px 0px;
+}
+
+.chart {
+	width: 480px;
+}
+.lol {
+	font-size: 16px;
+	color: #888;
+	font-style: italic;
+}
+.sep {
+	height: 1px;
+	width: 100%;
+	background: #999;
+	margin: 20px 0px 20px 0px;
+}
+.footer{
+	font-size: 16px;
+}
+.latex {
+	width: 100%;
+}
+
+.latex img {
+	display: block;
+	margin: 0px auto 0px auto;
+}
+
+pre {
+	font-family: 'Droid Sans Mono';
+	font-size: 14px;
+}
+
+td img {
+  vertical-align: middle;
+}
+
+#contents a {
+}
+</style>
+<script type="text/javascript">
+    hljs.initHighlightingOnLoad();
+</script>
+</head>
+<body>
+<div id="header" >
+<div id="headersub">
+<h1><span style="color: #DE3737">Binze Cai</span></h1>
+</div>
+</div>
+<div class="container">
+
+<h2>Project 5: Face detection with a sliding window</h2>
+
+
+	The purpose of this project is to try face recognition. The pipeline of image recognition can be summarized
+	as below:  
+	<li><code>Extract features: </code> To some extent, get_positive features(), get_random_negative_fetures()
+	, mine_hard_negs() are basically the same implementation. What they do is to extract hog features from different
+	input images and then return NxD feature matrix. N is number of total sample points and D is feature dimension.</li>
+	<li><code>Train classifier: </code> Train a linear SVM classifier to find out whether a face is included in 
+	the hog cell.</li>
+	<li><code>Detect faces with sliding window: </code> Apply the trained classifier on each window and output windows 
+	that contain faces.</li>
+
+	<p>
+	<code>1. get_positive features(), get_random_negative_fetures()</code> </br>
+	Both functions do the hog feature extraction jobs. Their difference of implementation are mostly based on the input.
+	For the positive ones, the training images are carefully cropped and contain exactly one face in each image. So what 
+	we need to do is to simply compute a hog vector for each image. On the other hand, negative features are somehow 
+	infinite. So we need to randomly choose some regions and extract hog features up to some limited number. </br>
+	<div style="text-align:center;">
+		<div class = "row">
+			<div class="col-6">
+				<img src="img/hog3_1.png", height="300", width="300" />
+			</div>
+			<div class="col-6">
+				<img src="img/hog3_2.png", height="300", width="300" />
+			</div>
+		</div>
+		<figcaption>Figure1: Hog feature(cell size = 3) </figcaption>
+		<div class = "row">
+			<div class="col-6">
+				<img src="img/hog6_1.png", height="300", width="300" />
+			</div>
+			<div class="col-6">
+				<img src="img/hog6_2.png", height="300", width="300" />
+			</div>
+		</div>
+		<figcaption>Figure2: Hog feature(cell size = 6) </figcaption>
+	</div>
+	It is obvious that with smaller cell size, hog vector can more intuitively describe the face profile.</br>
+
+	<code>2. train a linear classfier</code></br>
+	With feature vectors extracted above, we can train a linear SVM to decide whether the input cropped region is a face. 
+	The regularization factor C is important, here we try magnitude ranging from 5e-4 to 5 step e-1 and finally find out
+	that the default 5e-2 is the best tuning.  
+	<div style="text-align:center;">
+		<div class = "row">
+			<div class="col-12">
+				<img src="img/hog3_acc.jpg", height="200", width="700" />
+				<figcaption>Figure3: Training performance(cell size = 3) </figcaption>
+			</div>
+		</div>
+		<div class = "row">
+			<div class="col-12">
+				<img src="img/hog6_acc.jpg", height="200", width="700" />
+				<figcaption>Figure4: Training performance(cell size = 6) </figcaption>
+			</div>
+		</div>
+	</div>
+	<div style="text-align:center;">
+		<div class = "row">
+			<div class="col-6">
+				<img src="img/hog3_3.png", height="300", width="450" />
+			<figcaption>hog cell size = 3</figcaption>
+			</div>
+			<div class="col-6">
+				<img src="img/hog6_3.png", height="300", width="450" />
+			<figcaption>hog cell size = 6</figcaption>
+			</div>
+		</div>
+		<figcaption>Figure5: Training performance</figcaption>
+	</div>
+
+	<code>3. Mine hard negatives </code></br>
+	The main idea of hard negative mining is that you use the trained classifier to find false-positive examples, and then 
+	include them in your negative training data, so you can train the classifier again to improve the performance. Since the
+	classifier in step2 is accuarate, in this project it will contribute only a small improvement. In the experiments that I
+	have run, if cell size=6, hard negative only contains 3 rows with num_examples = 10000, which indicates a really low false 
+	positive rate. The random and mine hard negative training samples will both be used to train linear classifiers and their 
+	performance will be compared below. </br>
+
+	<code>4. Detect faces </code></br>
+	The idea is that in each scale of HoG feature space, we can step over HoG cell and classify them. With an acceptable confidence,
+	we pass the bounding box to non_max_suppression_bbox() and return detection boxes. The true location is among these boxes. 
+	The step size here is 1 due to the baseline of accuaracy requirement because a smaller step size will discover more detailed 
+	features. The scale factor will be set at 0.85 and therefore the search will be more exhaust. A 0.75 factor will reduce the AP 
+	value to about 78.2% not desired by the threshold 80%. And I also set a maximum iteration number = 100 to limit the running 
+	time. Another tuning parameter is the threshold of the confidence from the classifier, which will be discussed in 
+	section5. </br>
+	After running the detection function, the PR curve and ROC curve can be plotted.
+	<div style="text-align:center;">
+		<div class = "row">
+			<div class="col-6">
+				<img src="img/naive_neg_pr.png", height="300", width="450" />
+			<figcaption>PR curve </figcaption>
+			</div>
+			<div class="col-6">
+				<img src="img/naive_neg_roc.png", height="300", width="450" />
+			<figcaption>ROC curve </figcaption>
+			</div>
+		</div>
+		<figcaption>Figure6: Test Performance with naive negative fetures(cell size = 3) </figcaption>
+		<div class = "row">
+			<div class="col-6">
+				<img src="img/mine_neg_pr.png", height="300", width="450" />
+			<figcaption>PR curve </figcaption>
+			</div>
+			<div class="col-6">
+				<img src="img/mine_neg_roc.png", height="300", width="450" />
+			<figcaption>ROC curve </figcaption>
+			</div>
+		</div>
+		<figcaption>Figure7: Test Performance with mine hard negative fetures(cell size = 3) </figcaption>
+	</div>
+	
+	<div style="text-align:center;">
+		<div class = "row">
+			<div class="col-6">
+				<img src="img/naive_neg6_pr.png", height="300", width="450" />
+			<figcaption>PR curve </figcaption>
+			</div>
+			<div class="col-6">
+				<img src="img/naive_neg6_roc.png", height="300", width="450" />
+			<figcaption>ROC curve </figcaption>
+			</div>
+		</div>
+		<figcaption>Figure8: Test Performance with naive negative fetures(cell size = 6) </figcaption>
+		<div class = "row">
+			<div class="col-6">
+				<img src="img/mine_neg6_pr.png", height="300", width="450" />
+			<figcaption>PR curve </figcaption>
+			</div>
+			<div class="col-6">
+				<img src="img/mine_neg6_roc.png", height="300", width="450" />
+			<figcaption>ROC curve </figcaption>
+			</div>
+		</div>
+		<figcaption>Figure9: Test Performance with mine hard negative fetures(cell size = 6) </figcaption>
+	</div>
+
+	</br> The mine hard version has a slight improvement than the naive negative training set. 
+	And the AP value of cell size = 3 is about 7% higher than cell size = 6. This is explainable because the smaller 
+	hog descriptors can more detailedly describe the profile and contribute to higher average accuaracy. However, 
+	this is at a cost of running efficiency. </br>
+
+	<code>5. Result visualization with ground truth</code></br>
+	With the ground truth labeling, we can visualize the detection results. </br>
+	<div style="text-align:center;">
+		<div class = "row">
+			<div class="col-6">
+				<img src="img/class57.jpg", height="200", width="400" />
+			<figcaption>class57.jpg </figcaption>
+			</div>
+			<div class="col-6">
+				<img src="img/Germany.jpg", height="200", width="400" />
+			<figcaption>Germany.jpg </figcaption>
+			</div>
+		</div>
+		<div class = "row">
+			<div class="col-6">
+				<img src="img/speed.jpg", height="200", width="400" />
+			<figcaption>speed.jpg </figcaption>
+			</div>
+			<div class="col-6">
+				<img src="img/cfb.jpg", height="200", width="400" />
+			<figcaption>cfb.jpg </figcaption>
+			</div>
+		</div>
+		<div class = "row">
+			<div class="col-6">
+				<img src="img/hendrix1-bigger.jpg", height="200", width="400" />
+			<figcaption>hendrix1-bigger.jpg </figcaption>
+			</div>
+			<div class="col-6">
+				<img src="img/voyager2.jpg", height="200", width="400" />
+			<figcaption>voyager2.jpg </figcaption>
+			</div>
+		</div>
+		<figcaption>Figure10: visualization of bounding boxes </figcaption>
+	</div>
+	From the visualization, we can see that though faces can be detected in most cases, but in each single image, 
+	there are many false positive bounding box(the red boxes). It can be get rid of by increasing the threshold to drop 
+	many unconfident boxes. Here I do a test with threshold = -0.9 and threshold = 0.0.</br>
+	<div style="text-align:center;">
+		<div class = "row">
+			<div class="col-6">
+				<img src="img/knex37_09.jpg", height="200", width="400" />
+			<figcaption>threshold = -0.9 </figcaption>
+			</div>
+			<div class="col-6">
+				<img src="img/knex37_0.jpg", height="200", width="400" />
+			<figcaption>threshold = 0.0 </figcaption>
+			</div>
+		</div>
+		<div class = "row">
+			<div class="col-6">
+				<img src="img/clapton_09.jpg", height="200", width="400" />
+			<figcaption>threshold = -0.9 </figcaption>
+			</div>
+			<div class="col-6">
+				<img src="img/clapton_0.jpg", height="200", width="400" />
+			<figcaption>threshold = 0.0 </figcaption>
+			</div>
+		</div>
+		<div class = "row">
+			<div class="col-6">
+				<img src="img/original2_09.jpg", height="200", width="400" />
+			<figcaption>threshold = -0.9 </figcaption>
+			</div>
+			<div class="col-6">
+				<img src="img/original2_0.jpg", height="200", width="400" />
+			<figcaption>threshold = 0.0 </figcaption>
+			</div>
+		</div>
+		<figcaption>Figure11: Comparison between different threshold </figcaption>
+	</div>
+	From the above figures, it is obvious that with higher threshold, false positive regions will be more frequently 
+	rejected during detection phase. </br>
+
+
+	<code>6. Extra scene</code></br>
+	<div style="text-align:center;">
+		<div class = "row">
+			<div class="col-12">
+				<img src="img/4476_2017_class_easy.jpg", height="600", width="800" />
+				<figcaption>(a) 4476_2017_class_easy </figcaption>
+			</div>
+		</div>
+		<div class = "row">
+			<div class="col-12">
+				<img src="img/4476_2017_class_hard.jpg", height="600", width="800" />
+				<figcaption>(b) 4476_2017_class_hard </figcaption>
+			</div>
+		</div>
+		<div class = "row">
+			<div class="col-12">
+				<img src="img/cs143_2013_class_easy_01.jpg", height="600", width="800" />
+				<figcaption>(c) cs143_2013_class_easy_01 </figcaption>
+			</div>
+		</div>
+		<div class = "row">
+			<div class="col-12">
+				<img src="img/cs143_2013_class_hard_03.jpg", height="600", width="800" />
+				<figcaption>(d) cs143_2013_class_hard_03 </figcaption>
+			</div>
+		</div>
+		<figcaption>Figure12: Extra scenes </figcaption>
+	</div>
+	
+	<code>7. Extra Credit</code></br>
+	There are plenty classification schemes, such as nearest neighbor, which is unsupervised
+	and a deep neural network, which is a high dimensional nonlinear classifier. The basics of 
+	LinearSVC is that it can project the features into high dimension space and use linear plane 
+	to separate them. Hence like in project4, we can try a nonlinear classfier. So we try the 
+	logistics classifier, which is the most powerful and explainable nonlinear model. It can be 
+	applied in regression but also classification. The principle can be found here: https://www.stat.cmu.edu/~cshalizi/uADA/12/lectures/ch12.pdf. 
+	Here we just test its performance.
+
+	<div style="text-align:center;">
+		<div class = "row">
+			<div class="col-12">
+				<img src="img/logistics_acc.jpg", height="150", width="300" />
+				<figcaption>(a) accuaracy of logistics classification </figcaption>
+			</div>
+		</div>
+		<div class = "row">
+			<div class="col-6">
+				<img src="img/logistics_2.png", height="300", width="300" />				
+			</div>
+			<div class="col-6">
+				<img src="img/logistics_3.png", height="300", width="300" />
+			</div>	
+		</div>
+		<figcaption>(b) profile learned from logistics classification </figcaption>
+		<div class = "row">
+			<div class="col-6">
+				<img src="img/logistics_roc.png", height="300", width="450" />
+				<figcaption>(c) ROC curve </figcaption>
+			</div>
+			<div class="col-6">
+				<img src="img/logistics_pr.png", height="300", width="450" />
+				<figcaption>(d) PR curve  </figcaption>
+			</div>
+		</div>
+		<figcaption>Figure13: Performance of logistics classification </figcaption>
+	</div>
+
+</p>
+
+
+
+
+

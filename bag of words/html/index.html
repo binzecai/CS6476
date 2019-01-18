@@ -1,0 +1,355 @@
+<html>
+<head>
+<title>Computer Vision Project</title>
+<link href='http://fonts.googleapis.com/css?family=Nunito:300|Crimson+Text|Droid+Sans+Mono' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" title="Default" href="styles/github.css">
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></script>  
+
+<link rel="stylesheet" href="highlighting/styles/default.css">
+<script src="highlighting/highlight.pack.js"></script>
+
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+
+<style type="text/css">
+body {
+	margin: 0px;
+	width: 100%;
+	font-family: 'Crimson Text', serif;
+	font-size: 20px;
+	background: #fcfcfc;
+}
+h1 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 28px;
+	margin: 25px 0px 0px 0px;
+	text-transform: lowercase;
+
+}
+
+h2 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 32px;
+	margin: 15px 0px 35px 0px;
+	color: #333;	
+	word-spacing: 3px;
+}
+
+h3 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 26px;
+	margin: 10px 0px 10px 0px;
+	color: #333;
+	word-spacing: 2px;
+}
+h4 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 22px;
+	margin: 10px 0px 10px 0px;
+	color: #333;
+	word-spacing: 2px;
+}
+
+h5 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 18px;
+	margin: 10px 0px 10px 0px;
+	color: #111;
+	word-spacing: 2px;
+}
+
+p, li {
+	color: #444;
+}
+
+a {
+	color: #DE3737;
+}
+
+.container {
+	margin: 0px auto 0px auto;
+	width: 960px;
+}
+
+#header {
+	background: #333;
+	width: 100%;
+}
+
+#headersub {
+	color: #ccc;
+	width: 960px;
+	margin: 0px auto 0px auto;
+	padding: 20px 0px 20px 0px;
+}
+
+.chart {
+	width: 480px;
+}
+.lol {
+	font-size: 16px;
+	color: #888;
+	font-style: italic;
+}
+.sep {
+	height: 1px;
+	width: 100%;
+	background: #999;
+	margin: 20px 0px 20px 0px;
+}
+.footer{
+	font-size: 16px;
+}
+.latex {
+	width: 100%;
+}
+
+.latex img {
+	display: block;
+	margin: 0px auto 0px auto;
+}
+
+pre {
+	font-family: 'Droid Sans Mono';
+	font-size: 14px;
+}
+
+td img {
+  vertical-align: middle;
+}
+
+#contents a {
+}
+</style>
+<script type="text/javascript">
+    hljs.initHighlightingOnLoad();
+</script>
+</head>
+<body>
+<div id="header" >
+<div id="headersub">
+<h1><span style="color: #DE3737">Binze Cai</span></h1>
+</div>
+</div>
+<div class="container">
+
+<h2>Project 4: Scene recognition with bag of words</h2>
+
+
+	The purpose of this project is to try scene recognition. The pipeline of image recognition can be summarized
+	as below:  
+	<li><code>Feature representation:</code> Turn the image data into some manmade feature descriptor, 
+		like SIFT, HoG, Harris, etc in proj2.</li>
+	<li><code>Feature quantization:</code> With the feature representation, the data dimension is reduced and transformed into
+		some informationable descriptors, but in the end this is an classification task. Therefore, we need to 
+		quantize the descriptors into given number of classes.</li>
+	<li><code>Do classification with above features.</code></li>
+<p>
+	Specifically, in this project we will try tiny images and bags of quantized local features as feature 
+	representation technique. And nearest neighbor classification and linear classifiers(SVM) will be 
+	implemented.
+	</br>
+	<code>1. Tiny images representation</code> </br>
+	As suggested in guidance, the original images are resized into 16x16, a very small square 
+	resolution and then these tiny images are made to have zero mean and unit length. Here we 
+	use gray image as input because in this project we use a gradient descriptor to represent
+	features, which means the color information will have small function. And we use cv2.INTER_LINEAR
+	as the interpolation method. It works fast among all the interpolation methods.</br>
+
+	<code>2. Nearest neighbor classifier</code></br>
+	<div style="text-align:center;">
+		<div class = "row">
+			<div class="col-12">
+				<img src="img/5NN.png", height="300", width="500" />
+				<figcaption> Nearest neighbor classifier </figcaption>
+			</div>
+		</div>
+	</div>
+	Nearest neighbor classifier(Aka KNN) is an unsupervised learning for data clustering. Its basic idea 
+	is that given a test feature into a particular category, one simply finds the "nearest" training example 
+	(L2 distance is a sufficient metric) and assigns the test case the label of that nearest training example.
+	The implementation is also easy except that we need to choose the number of clustering center K.
+	This is a hyperparameter and therefore we have run some experiments from K=1 to 5. And the mean of diagonal 
+	of confusion matrix, which is the evaluation index in this project, is separately <code>22.20%, 21.60%, 21.27%,
+	21.73%, 21.67%. </code>It shows that K=1 is the best parameter, which satisfies the accuracy of 18-25%.</br>
+	<div style="text-align:center;">
+		<div class = "row">
+			<div class="col-12">
+				<img src="img/tiny-nn.png", height="400", width="500" />
+				<figcaption> Tiny images representation and nearest neighbor classifier </figcaption>
+			</div>
+		</div>
+	</div>
+
+	<code>3. Bags of SIFT features. </code></br>
+	To build vocabulary of visual words, we extract n sift features in each image and cluster them into k clusters
+	with kmeans. Here k is the vocabulary size, which is a hyperparameter and we will show the experiment result later. 
+	For any new SIFT feature we observe, we can figure out which region it belongs to as long as we save the centroids 
+	of our original clusters. Those centroids are our visual word vocabulary. Here we run an experiment on n, which is 
+	the sift feature points extracted from each image. The test group is n=10, 50, 100, 200, 400. And the accuracy is 
+	separately<code> 51.20%, 53.00%, 51.67%, 51.07%, 51.87%. </code> So we choose n=50 here for further test, which 
+	satisfies the accuracy interval 50-60% and is in an acceptable computing efficiency. 
+	<div style="text-align:center;">
+		<div class = "row">
+			<div class="col-12">
+				<img src="img/bags of sifts-nn.png", height="400", width="500" />
+				<figcaption> Bags of SIFT representation and nearest neighbor classifier </figcaption>
+			</div>
+		</div>
+	</div>
+
+	<code>4. Linear classifier </code></br>
+	The last task is to train 1-vs-all linear SVMS to operate in the bag of SIFT feature space. The feature space is 
+	partitioned by a learned hyperplane and test cases are categorized based on which side of that hyperplane they fall on.
+	Linear classfier is inherently binary and there are 15 classes in this project and so we need to train totally 15
+	classifiers corresponding to each class. As for the prediction, we return the label with maximum prediction score. 
+	Besides, a validation set is made to choose hyper parameters in the training process. Detailedly, a cross-validation 
+	is also implemented and in each iteration, the number of training set/validation set is 14:1 with random sampling from 
+	total 1500 pictures. The performance of current group of hyperparameters is evaluated by the average accuaracy after  
+	10 iterations. And according to the specific requirement of experimental design, another 200 size validation set is made,
+	which contains 100 training images and 100 test images. The best parameters will be determined by the above two validations 
+	and after that, the model with chosen parameters will be trained on the whole 1500 training images and evaluated on the 
+	1500 test images. Besides, the parameter of the given svm_classify is modified a little for convenience of hyperparameter 
+	tuning. 
+
+	With the above method, take regularization parameter C in linear SVM as an example and the tuning process is as below:
+	<div style="text-align:center;">
+		<div class = "row">
+			<div class="col-12">
+				<img src="img/model selection.png", height="350", width="800" />
+				<figcaption> Hyper parameter tuning: </br>
+							 1. <b>parameter tuning:</b> separate the original training set into 14:1, which means 100 training images 
+							 are used as validation set. The accuaracy given here is on the validation set. 
+							 2. <b>cross validation:</b> this is according to the project requirements: we randomly pick 100 training 
+							 images and 100 test images to do the cross validation and use the accuaracy to evaluate the 
+							 performance of the model. </br>
+				</figcaption>
+			</div>
+		</div>
+	</div>
+	The regularization factor does matter in a machine learning task because it will affect the weight matrix on each feature. 
+	The larger it is, the smaller the weight can be. This factor is mostly used to avoid overfitting. Here we can see that the 
+	cross validation accuaracy is slightly higher than in training process, because the cross validation contains 100 random subsamplying 
+	training images required according to the assignment. And therefore, the error on training set is obviously smaller than 
+	test set. Combine both evaluation indexes, best C=4 is chosen and then this specific model is built on the whole 
+	training set and test on the whole test set. The accuaracy is about 65.47%, which is in the recommended interval 60-70%.
+	<div style="text-align:center;">
+		<div class = "row">
+			<div class="col-12">
+				<img src="img/bags of sifts-svm.png", height="400", width="500" />
+				<figcaption> Bags of sifts and SVM classifier(vocab_size=200) </figcaption>
+			</div>
+		</div>
+		<div class = "row">
+			<div class="col-12">
+				<img src="img/bags of sifts-svm10000.png", height="400", width="500" />
+				<figcaption> Bags of sifts and SVM classifier(vocab_size=10000) </figcaption>
+			</div>
+		</div>
+	</div>
+
+	<code>5. Experiment Deisgn</code></br>
+	In this project we are specifically to test with different vocabulary sizes and report performance. E.g. 10, 20, 50, 100, 
+	200, 400, 1000, 10000. This is a key parameter because it represents the kmeans cluster center, which shows how many features 
+	the data can give. Here we only want to know the influence of different vocabulary sizes. So we choose a relatively small 
+	regularization factor otherwise no typical features can be represented(So here we choose c = 1 in linearSVC). 
+	The corresponding accuaracy is plotted as below and the corresponding accuracy is <b> 40.40, 45.13, 54.87, 58.27, 65.47, 
+	66.27, 66.07, 67.53</b>.
+	<div style="text-align:center;">
+		<div class = "row">
+			<div class="col-12">
+				<img src="img/Vs-Acc.png", height="400", width="500" />
+				<figcaption> Prediction accuaracy varies based on different number of vocabulary sizes</figcaption>
+			</div>
+		</div>
+
+	</div>
+	It can be seen from the figure that after vocab_size=200, the increasing rate of prediction accuaracy slows down and converge 
+	between 65-67%. So considering the computing efficiency, 200 is a suitable number of vocabulary sizes. </br>
+
+	<code>6. Extra credit</code></br>
+	<code>6.1 SVM with sophisticated kernels</code></br>
+	The above result is based on linear kernel SVM. This model works good with linearly separable situation. It has fewer 
+	parameters and works faster than nonlinear kernels. It provides an ideally acceptable baseline when training nonlinear
+	kernel. Nonlinear kernel has a more powerful separability but it highly 
+	relys on parameters. In sklearn, with other default parameters, the RBF kernel is slightly worse than linearSVC. However,
+	with careful tuning, the nonlinear ones will come to a better solution due to its stronger separability.
+
+	To achieve this, we use the sklearn SVC method and tune 'kernel' and 'gamma' arguments. It needs to be mentioned that regularization
+	also matters here, because it is a general avoiding overfitting technique. However, considering that we have shown its impactness 
+	above, here we just tune the other two unique arguments in nonlinear kernel method. 'kernel' means different radial basis function, such
+	as polynomial, Gaussian RBF, sigmoid, etc. The kernel function hidenly fits the data distribution. 'gamma' is tied with RBF kernel and it 
+	hiddenly determines the data distribution in the new feature space. The larger the gamma, the fewer the support vector, which will have an
+	impact on the training and prediction efficiency. 
+	<div style="text-align:center;">
+		<div class = "row">
+			<div class="col-12">
+				<img src="img/radial basis function.png", height="200", width="800" />
+				<figcaption> Different kernel choices</figcaption>
+			</div>
+		</div>
+	</div>
+	With reference to <code> https://blog.csdn.net/u014484783/article/details/78220646 </code>, we will use Grid search like method to do 
+	the tuning and the suggested value in this page. Some results are shown as below:
+	<div style="text-align:center;">
+		<div class = "row">
+			<div class="col-12">
+				<img src="img/gamma1d0.6.png", height="450", width="650" />
+				<figcaption> gamma = 1/0.6</figcaption>
+			</div>
+		</div>
+		<div class = "row">
+			<div class="col-12">
+				<img src="img/gamma1d1.6.png", height="450", width="650" />
+				<figcaption> gamma = 1/1.6</figcaption>
+			</div>
+		</div>
+	</div>
+	All the experiments conducted above is with 200 sift features in each image. And the original accuaracy is 65.47%. From above figures,
+	we can see that the overall accuracy seems to increase with C from 1 to 10. So with careful tuning, before the submission deadline,
+	the best performance that the nonlinear kernel can give is 68.47%, 3% increase compared with the linear kernel. 
+	<div style="text-align:center;">
+		<div class = "row">
+			<div class="col-12">
+				<img src="img/nonlinear kernel.png", height="400", width="500" />
+				<figcaption> Nonlinear kernel SVM: gamma=1/0.6, C=2, return 68.47% accuracy</figcaption>
+			</div>
+		</div>
+	</div>
+	<code>6.2 Fisher encoding schemes</code></br>
+	The implementation is mainly based on <code> https://hal.inria.fr/hal-00830491v2/document </code> for theory and <code> 
+	http://www.vlfeat.org/overview/encodings.html </code> for matlab reference. The encoding serves a simple purpose: summarizing in a 
+	vectorial statistic a number of local feature descriptors(e.g. SIFT) and then pooled local features. 
+	It mainly contains 3 steps:
+	<li>Extract SIFT features </li>
+	<li>Do GMM clustering to calculate the means, covariances and priors of the given features</li>
+	<li>Encoding the original features with its computed statistical properties</li>
+
+	The feature size with fisher encoding will be vocab_size for row and (SIFT dimension*feature points in each image) for column.
+	Because this is a high dimensional feature representation, we need to choose linearSVC as the classfier considering its great performance 
+	in high dimensional data input and computing efficiency. Besides, the recognition parameter in linearSVC should be larger to do avoid 
+	overfitting. 
+	<div style="text-align:center;">
+		<div class = "row">
+			<div class="col-12">
+				<img src="img/fisher.png", height="500", width="800" />
+				<figcaption> Performance of fisher encoding</figcaption>
+			</div>
+		</div>
+	</div>
+	From the above figure, we can see that with the fisher encoding, the accuracy comes to approximately 71% on the validation set, but the 
+	cross validation set combined both training and test set shows that it performs not well on test prediction.
+
+	(PS: All the result given above is based on the result I do the experiments on my PC. The accuracy may vary due to different envonriment and 
+	machine learning is basically a probalistic approach. So if the code is rerunned, the result may be a little different but I believe it is 
+	robust enough to fall on the required accuracy interval.)
+</p>
+
+
+
+
+

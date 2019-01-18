@@ -1,0 +1,405 @@
+<html>
+<head>
+<title>Computer Vision Project</title>
+<link href='http://fonts.googleapis.com/css?family=Nunito:300|Crimson+Text|Droid+Sans+Mono' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" title="Default" href="styles/github.css">
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></script>  
+
+<link rel="stylesheet" href="highlighting/styles/default.css">
+<script src="highlighting/highlight.pack.js"></script>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+
+<style type="text/css">
+body {
+	margin: 0px;
+	width: 100%;
+	font-family: 'Crimson Text', serif;
+	font-size: 20px;
+	background: #fcfcfc;
+}
+h1 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 28px;
+	margin: 25px 0px 0px 0px;
+	text-transform: lowercase;
+
+}
+
+h2 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 32px;
+	margin: 15px 0px 35px 0px;
+	color: #333;	
+	word-spacing: 3px;
+}
+
+h3 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 26px;
+	margin: 10px 0px 10px 0px;
+	color: #333;
+	word-spacing: 2px;
+}
+h4 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 22px;
+	margin: 10px 0px 10px 0px;
+	color: #333;
+	word-spacing: 2px;
+}
+
+h5 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 18px;
+	margin: 10px 0px 10px 0px;
+	color: #111;
+	word-spacing: 2px;
+}
+
+p, li {
+	color: #444;
+}
+
+a {
+	color: #DE3737;
+}
+
+.container {
+	margin: 0px auto 0px auto;
+	width: 960px;
+}
+
+#header {
+	background: #333;
+	width: 100%;
+}
+
+#headersub {
+	color: #ccc;
+	width: 960px;
+	margin: 0px auto 0px auto;
+	padding: 20px 0px 20px 0px;
+}
+
+.chart {
+	width: 480px;
+}
+.lol {
+	font-size: 16px;
+	color: #888;
+	font-style: italic;
+}
+.sep {
+	height: 1px;
+	width: 100%;
+	background: #999;
+	margin: 20px 0px 20px 0px;
+}
+.footer{
+	font-size: 16px;
+}
+.latex {
+	width: 100%;
+}
+
+.latex img {
+	display: block;
+	margin: 0px auto 0px auto;
+}
+
+pre {
+	font-family: 'Droid Sans Mono';
+	font-size: 14px;
+}
+
+td img {
+  vertical-align: middle;
+}
+
+#contents a {
+}
+</style>
+<script type="text/javascript">
+    hljs.initHighlightingOnLoad();
+</script>
+</head>
+<body>
+<div id="header" >
+<div id="headersub">
+<h1><span style="color: #DE3737">Binze Cai</span></h1>
+</div>
+</div>
+<div class="container">
+
+<h2>Project 2: Local Feature Matching</h2>
+
+
+<p> 	
+	In this project, the image matching pipeline is implemented, including A. interest point detection, B. creating an Sift descriptor for interest points 
+	and C. do the keypoint matching between images of the same scene. This technique is frequently used in image stitching, image alignment and so on. Also, 
+	an PCA method is implemented to conduct dimension reduction on the 128 dims Sift descriptor. The implementation details will be listed below. 
+</p>
+<p>
+	A. Interest point detection. In this case the harris corner detector is implemented to find corner keypoints. First, a 3x3 gaussian kernel with 0.5 sigma is 
+	used to filter the input binary image. This filter helps to get rid of some noise and reveal the embedded feature. Then x and y gradient of pixel is calculated,
+	which will be used in the second moment matrix. In the equation of calculating the corner response, the alpha value is 0.06 in this case. As is mentioned in paper,
+	larger alpha will decrease the corner response value and fewer points will be detected. Here the computation efficiency is considered. And even with 0.06 alpha,
+	the chosen is about 500000+, which is enough for the latter detection. And then, the mean of corner response matrix is used as a threshold for remove some points.
+	At this step, the candidate corner points are detected. <br>
+
+	To do the ANMS, the response value is first sorted in decreasing order. When iterating each point in order list, the distance between current point and former points 
+	are calculated. The smallest value is picked out to compare with a limited radii value because if this distance is too small, then the uneven distribution will still 
+	ocurr. As is mentioned in the given paper, the corner response value should be 1.1 times larger than the neighbor area to increase its robustness. So in this project, 
+	an experiment is conducted with limited radii 8 and 1.1 times larger than neighbor area to see how well the implemented algorithm works. <br>
+
+	<div style="text-align:center;">
+		<div class = "row">
+			<div class="col-6">
+				<img src="test1.jpg", height="300", width="230" />
+				<figcaption> (a)</figcaption>
+			</div>
+			<div class="col-6">
+				<img src="test2.jpg", height="300", width="230" />
+				<figcaption> (b) </figcaption>
+			</div>
+		</div>
+	</div>
+
+<p style="font-size: 20px; text-align:center">
+Figure1: Harris corner points detection and ANMS with limited radii = 6 and local maiximum parameters = 1.1
+</p>
+
+However, though the detected seems evenly ditributed, which is good, the matching result is worse than the denser version with radii = 2 and local maximum parameters = 1.
+This version is further used in this project as it has higher matching accuracy.
+	<div style="text-align:center;">
+		<div class = "row">
+			<div class="col-6">
+				<img src="harris1.jpg", height="300", width="230" />
+				<figcaption> (a)</figcaption>
+			</div>
+			<div class="col-6">
+				<img src="harris2.jpg", height="300", width="230" />
+				<figcaption> (b) </figcaption>
+			</div>
+		</div>
+	</div>
+
+<p style="font-size: 20px; text-align:center">
+Figure2: Harris corner points detection and ANMS with limited radii = 2 and local maiximum parameters = 1
+</p>
+</p>
+
+
+	 
+<p>
+	B. sift descriptor. The input binary image is first filtered by a gaussian kernel with ksize=9 and sigma=2 after several experiments. And then the magnitude and orientation of a
+	single pixel is calculated. It is worth mentioned that the np.arctan2 returns an interval of (-180, 180). So I manually convert it into (0, 360) for convenience. Later, a 16x16 
+	neighbor area is cropped and a gaussian filter with the same size is applied to the magnitude matrix. And then a sliding window is used to transform the 16 length array to to a 
+	8 length descriptor based on the gradient direction and so it is totally 4x4x8=128. In this case, the rotation invariant feature is not implemented and its side effect will be 
+	discussed later. Finally, each feature vector is regularized to a unit vector and clipped in (0, 0.2) to avoid outlier value.  
+</p>
+
+<p>
+	C. Feature matching. Each image will generate several feature vectors after step A and B. So in this case, the Euclidean distance to compare the simlarity between high dimension 
+	vectors and the pair of smallest distance is chosen as the matched key points. This simlarity comparing strategy is quite simple but it does work. And then Nearest Neighbor Distance
+	Ratio(NN1/NN2) is computed to represent the confidence among the matching and accsendingly sorted. Lower NNDR means better matching result. Here a threshold is set at 0.85 to clip
+	some ambiguous matching. 
+</p>
+
+<h3>Test Result on Notre Dame pair</h3>
+<p>
+<div style="text-align:center;">
+		<div class = "row">
+			<div class="col-12">
+				<img src="eval.jpg", height="300", width="500" />
+				<figcaption>(a): Accuracy: 0.92</figcaption>
+			</div>
+		</div>
+		<div class = "row">
+			<div class="col-6">
+				<img src="vis_circles.jpg", height="300", width="500" />
+				<figcaption>(b): most confident 100 points </figcaption>
+			</div>
+			<div class="col-6">
+				<img src="vis_lines.jpg", height="300", width="500" />
+				<figcaption>(c): most confident 100 matches </figcaption>
+			</div>
+		</div>
+</div>
+<p style="font-size: 20px; text-align:center">
+Figure3: Sift feature matching result of Notre Dame pair
+</p>
+The result shows that with the pipeline mentioned above, the accuracy could be 0.92 when only evaluating the parameters on Notre Dame pair. 
+</p>
+
+<p>
+<div style="text-align:center;">
+		<div class = "row">
+			<div class="col-12">
+				<img src="Notre_hist.jpg", height="300", width="500" />
+				<figcaption>Figure4: The NNDR distribution of most confident 100 matches</figcaption>
+			</div>
+		</div>
+</div>
+As is shown in the histogram, the confidence is mostly smaller than 0.75, a little higher than the recommended interval 0.4~0.6. <br>
+</p>
+
+<h3>Test result of Mount Rushmore pair</h3>
+<p>
+<div style="text-align:center;">
+		<div class = "row">
+			<div class="col-12">
+				<img src="match_Mount.jpg", height="250", width="500" />
+				<figcaption>(a): Accuracy: 0.61</figcaption>
+			</div>
+		</div>
+		<div class = "row">
+			<div class="col-6">
+				<img src="vis_circles_mount.jpg", height="350", width="500" />
+				<figcaption>(b): most confident 100 points </figcaption>
+			</div>
+			<div class="col-6">
+				<img src="vis_lines_mount.jpg", height="350", width="500" />
+				<figcaption>(c): most confident 100 matches </figcaption>
+			</div>
+		</div>
+</div>
+<p style="font-size: 20px; text-align:center">
+Figure5: Sift feature matching result of Mount Rushmore pair
+</p>
+</p>
+
+
+<h3>Other examples</h3>
+<p>
+<div style="text-align:center;">
+		<div class = "row">
+			<div class="col-6">
+				<img src="IMG_0485.jpg", height="350", width="500" />
+				<figcaption>(a) template image </figcaption>
+			</div>
+			<div class="col-6">
+				<img src="IMG_0488.jpg", height="350", width="500" />
+				<figcaption>(b): scene image </figcaption>
+			</div>
+		</div>
+		<div class = "row">
+			<div class="col-12">
+				<img src="vis_circles_House.jpg", height="300", width="700" />
+				<figcaption>(c): most confident 30 feature points </figcaption>
+			</div>
+		</div>
+		<div class = "row">
+			<div class="col-12">
+				<img src="vis_lines_House.jpg", height="300", width="700" />
+				<figcaption>(d): most confident 30 feature matches </figcaption>
+			</div>
+		</div>
+</div>		
+<p style="font-size: 20px; text-align:center">
+Figure6: Sift feature matching result of House<br>
+</p>	
+</p>
+<p>
+<div style="text-align:center;">
+		<div class = "row">
+			<div class="col-6">
+				<img src="6005180348_c465ccf905_o.jpg", height="350", width="500" />
+				<figcaption>(a) template image </figcaption>
+			</div>
+			<div class="col-6">
+				<img src="6163516235_c01647f290_o.jpg", height="350", width="500" />
+				<figcaption>(b): scene image </figcaption>
+			</div>
+		</div>
+		<div class = "row">
+			<div class="col-12">
+				<img src="vis_circles_Paris.jpg", height="300", width="700" />
+				<figcaption>(c): most confident 30 feature points </figcaption>
+			</div>
+		</div>
+		<div class = "row">
+			<div class="col-12">
+				<img src="vis_lines_Paris.jpg", height="300", width="700" />
+				<figcaption>(d): most confident 30 feature matches </figcaption>
+			</div>
+		</div>
+</div>		
+<p style="font-size: 20px; text-align:center">
+Figure7: Sift feature matching result of Patheon Paris<br>
+</p>
+</p>
+<p>
+<div style="text-align:center;">
+		<div class = "row">
+			<div class="col-6">
+				<img src="2141753393_77b92de58d_o.jpg", height="350", width="500" />
+				<figcaption>(a) template image </figcaption>
+			</div>
+			<div class="col-6">
+				<img src="2589974552_c6e14695b2_o.jpg", height="350", width="500" />
+				<figcaption>(b): scene image </figcaption>
+			</div>
+		</div>
+		<div class = "row">
+			<div class="col-12">
+				<img src="vis_circles_SC.jpg", height="300", width="700" />
+				<figcaption>(c): most confident 30 feature points </figcaption>
+			</div>
+		</div>
+		<div class = "row">
+			<div class="col-12">
+				<img src="vis_lines_SC.jpg", height="300", width="700" />
+				<figcaption>(d): most confident 30 feature matches </figcaption>
+			</div>
+		</div>
+</div>		
+<p style="font-size: 20px; text-align:center">
+Figure8: Sift feature matching result of Sacre Coeur<br>
+</p>
+</p>
+
+
+<h3>Extra work</h3>
+<p>
+In this case, an PCA algorithm is implemented to create a low dimensional descriptor from 128 dims sift descriptor.
+The algorithm mainly includes the following steps:
+
+<ol>
+<li>Calculate mean through each feature and do normalization </li>
+<li>Calculate scatter matrix</li>
+<li>Calculate the eigen value and eigen vector of scatter matrix</li>
+<li>Choose the main component by sorting the eigen value and pick the largest k value</li>
+<li>Multiple the original data with the chosen eigen vector</li>
+</ol>
+
+Due to its high dimension, the reduction result is hard to plot through a 3D figure. So in this project the result will
+be compared with sklearn.decompostion.PCA(). 
+	<pre><code>
+		from sklearn.decomposition import PCA
+		pcA = PCA(n_components=32)
+		image1_features = get_features(image1_bw, x1, y1, feature_width)
+		package_pca = pcA.fit_transform(image1_features)
+		mine_pca = pca(image1_features, 32)
+	</code></pre>
+In the test case, the 128 dims feature vector is created from image1_bw. And the self implemented PCA method is compared
+with the package one. 
+<div style="text-align:center;">
+		<div class = "row">
+			<div class="col-12">
+				<img src="pca.jpg", height="150", width="250" />
+				<figcaption>Figure6: pca comparison result</figcaption>
+			</div>
+		</div>
+</div>
+The result shows that the two main component value is almost the same, which reveals a correct implementation.
+</p>
+
+
+</body>
+</html>

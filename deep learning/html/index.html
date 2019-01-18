@@ -1,0 +1,516 @@
+<html>
+<head>
+<title>Computer Vision Project</title>
+<link href='http://fonts.googleapis.com/css?family=Nunito:300|Crimson+Text|Droid+Sans+Mono' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" title="Default" href="styles/github.css">
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></script>  
+
+<link rel="stylesheet" href="highlighting/styles/default.css">
+<script src="highlighting/highlight.pack.js"></script>
+
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+
+<style type="text/css">
+body {
+	margin: 0px;
+	width: 100%;
+	font-family: 'Crimson Text', serif;
+	font-size: 20px;
+	background: #fcfcfc;
+}
+h1 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 28px;
+	margin: 25px 0px 0px 0px;
+	text-transform: lowercase;
+
+}
+
+h2 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 32px;
+	margin: 15px 0px 35px 0px;
+	color: #333;	
+	word-spacing: 3px;
+}
+
+h3 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 26px;
+	margin: 10px 0px 10px 0px;
+	color: #333;
+	word-spacing: 2px;
+}
+h4 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 22px;
+	margin: 10px 0px 10px 0px;
+	color: #333;
+	word-spacing: 2px;
+}
+
+h5 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 18px;
+	margin: 10px 0px 10px 0px;
+	color: #111;
+	word-spacing: 2px;
+}
+
+p, li {
+	color: #444;
+}
+
+a {
+	color: #DE3737;
+}
+
+.container {
+	margin: 0px auto 0px auto;
+	width: 960px;
+}
+
+#header {
+	background: #333;
+	width: 100%;
+}
+
+#headersub {
+	color: #ccc;
+	width: 960px;
+	margin: 0px auto 0px auto;
+	padding: 20px 0px 20px 0px;
+}
+
+.chart {
+	width: 480px;
+}
+.lol {
+	font-size: 16px;
+	color: #888;
+	font-style: italic;
+}
+.sep {
+	height: 1px;
+	width: 100%;
+	background: #999;
+	margin: 20px 0px 20px 0px;
+}
+.footer{
+	font-size: 16px;
+}
+.latex {
+	width: 100%;
+}
+
+.latex img {
+	display: block;
+	margin: 0px auto 0px auto;
+}
+
+pre {
+	font-family: 'Droid Sans Mono';
+	font-size: 14px;
+}
+
+td img {
+  vertical-align: middle;
+}
+
+#contents a {
+}
+</style>
+<script type="text/javascript">
+    hljs.initHighlightingOnLoad();
+</script>
+</head>
+<body>
+<div id="header" >
+<div id="headersub">
+<h1><span style="color: #DE3737">Binze Cai</span></h1>
+</div>
+</div>
+<div class="container">
+
+<h2>Project 6: Deep Learning</h2>
+
+	The purpose of this project is to try deep learning with the same scene recognition data in project4. Deep learning 
+	has become the hottest trend in several computer vision tasks. In this project, we will go through pipeline of 
+	deep learning and implement a basic neural network(acc > 50%) and a fine-tuned Alexnet(acc > 80%). To train a 
+	network in PyTorch, 4 components are needed. 
+	<li><code>Dataset: </code> an object which can do data loading and labeling. </li>
+	<li><code>Model </code> an object that defines the network architecture </li>
+	<li><code>Loss function</code> a measure between network output and ground truth labels </li>
+	<li><code>Optimizer </code> an object to update the parameters in the network to reduce loss </li>
+	</br>
+
+	<p>
+	<code>Part 0</code> </br>
+	Deep learning is a machine learning technique that teaches computers to do what comes naturally to humans: learn by 
+	example. It is in supervised learning and its architecture is inspired by biology. It has some ups and downs in its 
+	history. The recent updates is in 2015 ImageNet, where deep learning beat the traditional SIFT-like features and SVM
+	technique and greatly reduced the recognition error. Some people also call it "representation learning" because compared
+	with previous machine learning technique, deep learning(here we only talk about its application in computer vision) can 
+	automatically extract CNN features in raw images and use that as the input to the fully connected layer(the classifier). 
+	This end-to-end model seems somehow like a blackbox but we can not deny that this is getting the best recognition result 
+	ever. </br>
+	
+	<div style="text-align:center;">
+		<div class = "row">
+			<div class="col-12">
+				<img src="img/dl_development.png", height="400", width="600" />
+				<figcaption>Figure1: Development of deep learning in the last 18 years </figcaption>
+			</div>
+		</div>
+	</div>
+	Many researchers has dived into deep learning and got many promising progress. First, several techniques are designed to 
+	improve test error such as what we have implemented below: dropout, batch normalization, different activation function, etc.
+	Second, specific architecture for different computer vision tasks like RCNN, faster-RCNN for object detection. Third, 
+	as the network goes deeper, which means that the demand for high performance computing is soaring, there appears many computing 
+	acceleration techniques such as GPU. Those are all designed for deep learning and is developed really fast. These are just some 
+	pieces of fact that deep learning is important today. </br>
+	And why don't we need to engineer features to get high performance model? The answer is that deep learning has already done it as 
+	mentioned above. It seems that in the bottom layer(close to image), the neural network manages to extract the edge, texture and
+	other basic features which are the components of the high level semantics. Therefore, in the top layer(close to classifier), each 
+	convolutional kernel seems to contain more complex information such as scene and object. 
+	<div style="text-align:center;">
+		<div class = "row">
+			<div class="col-12">
+				<img src="img/layer1.jpg", height="400", width="900" />
+			</div>
+		</div>
+	</div>
+
+	<div style="text-align:center;">
+		<div class = "row">
+			<div class="col-12">
+				<img src="img/layer3.jpg", height="400", width="900" />
+			</div>
+		</div>
+	</div>
+	<div style="text-align:center;">
+		<div class = "row">
+			<div class="col-12">
+				<img src="img/layer5.jpg", height="400", width="900" />
+			</div>
+		</div>
+	<figcaption>Figure2: Visualization of CNN features</figcaption>
+	</div>
+
+	So in this project, we will go deeper the architecture of deep neural network and find out how each components work together.
+	The figures below shows the performance of the given unrevised network.</br>
+
+	<div style="text-align:center;">
+		<div class = "row">
+			<div class="col-12">
+				<img src="img/part0_architecture.jpg", height="200", width="700" />
+				<figcaption>Figure3: architecture of unrevised network</figcaption>
+			</div>
+		</div>
+	</div>
+
+	<div style="text-align:center;">
+		<div class = "row">
+			<div class="col-12">
+				<img src="img/part0_para.jpg", height="300", width="400" />
+				<figcaption>Figure4: parameters in loss function and optimizer</figcaption>
+			</div>
+		</div>
+	</div>
+
+	<div style="text-align:center;">
+		<div class = "row">
+			<div class="col-6">
+				<img src="img/part01.png", height="300", width="400" />
+				<figcaption>(a): training and validation loss </figcaption>
+			</div>
+			<div class="col-6">
+				<img src="img/part02.png", height="300", width="400" />
+				<figcaption>(b): log of learning rate </figcaption>
+			</div>
+		</div>
+		
+		<div class = "row">
+			<div class="col-6">
+				<img src="img/part03.png", height="300", width="400" />
+				<figcaption>(c): top1 precision </figcaption>
+			</div>
+			<div class="col-6">
+				<img src="img/part04.png", height="300", width="400" />
+				<figcaption>(d): top5 precision </figcaption>
+			</div>
+		</div>
+		<div class = "row">
+			<div class="col-12">
+				<img src="img/part0_training.jpg", height="500", width="800" />
+				<figcaption>(e): acc of part0 </figcaption>
+			</div>
+		</div>
+		<figcaption>Figure5: Performance of part0 </figcaption>
+	</div>
+	</br>
+
+	<code>Part1</code></br>
+	First we will implement a data loader with some image preprocessing. A few techniques are listed below:
+
+	<li><code>Resize images </code> One of the first steps is to ensure that the images have the same size 
+	and aspect ratio. Most of the neural network models assume a square shape input image, which means that 
+	each image need to be checked if it is a square or not, and cropped appropriately. Here in out project, 
+	part1 has an input size of 64x64 and part2 has 224x224. Cropping can be done 
+	to select a square part of the image, as shown. While cropping, we usually care about the part in the center. 
+	</li>
+
+	<li><code>Normalize images </code> After computing the mean and standard deviation of the images, we can do
+	image normalization, which gives the input a similar data distribution. This contributes to faster covergence
+	while training network because the current training is based on back propogation. Data normalization is done 
+	by subtracting the mean from each pixel and divide the result by standard deviation. In this project, we do 
+	data normalization to train images and test images, respectively.   
+	</li>
+	<div style="text-align:center;">
+		<div class = "row">
+			<div class="col-12">
+				<img src="img/normalization.jpg", height="400", width="300" />
+				<figcaption>Figure6: normalization of RGB images in part2</figcaption>
+			</div>
+		</div>
+	</div>
+
+	<li><code>Data augmentation </code> Another common pre-processing technique involves augmenting the existing 
+	data-set with perturbed versions of the existing images. Scaling, rotations and other affine transformations 
+	are typical. This is done to expose the neural network to a wide variety of variations. This makes it less 
+	likely that the neural network recognizes unwanted characteristics in the data-set and therefore increases the 
+	robustness of the network. In this project, we only randomly flip the input image left to right, but there are
+	many other tricks such as vertically mirroring, rotations by different angles, making it brighter, color space 
+	changing and so on. However, in this project, consider the limited training time, it may not be good to feed 
+	too much data to the network because it will not converge in this short period of time and leads to a bad 
+	accuaracy. 
+	</li></br>
+
+	After implementing the data loader, we can get num_training_images*image_width*image_height*channels input. 
+	And then we can start to define the architecture of the network. </br>
+	<div style="text-align:center;">
+		<div class = "row">
+			<div class="col-12">
+				<img src="img/lenet5.jpg", height="300", width="800" />
+				<figcaption>Figure7: Lenet5 </figcaption>
+			</div>
+		</div>
+	</div>
+	Lenet5 is released in 1998 and it is a good example for explaining the network architecture. 
+	<li><code>Convolutional Layer</code> What convolutional layer do is to extract the image spatial feature by multi 
+	convolutional kernel and then they are used to represent the information in input images. The most important 
+	thing that needs to be mentioned is the size transformation as shown below. 
+	<div style="text-align:center;">
+		<div class = "row">
+			<div class="col-12">
+				<img src="img/cnn_compute.jpg", height="100", width="600" />
+				<figcaption>Figure8: Convolutional kernel size transformation </figcaption>
+			</div>
+		</div>
+	</div>
+	For example, the first convolutional layer of Alexnet, the input image is 227*227*3, then if we set kernel size = 11,
+	stride = 4, padding = 2, then the width of the next input can be: (227-11+2*2)/4+1 = 56. And if the number of kernel 
+	is 96, then the output kernel number of the first convolutional layer would be 96*56*56. And this can be applied to 
+	every convolutional layer. So if part1, the most difficult thing is that when we try to design a deeper network, we 
+	need to make sure that the dimension of each layer is fitted to the input layer.</li> </br>
+
+	<li><code>Fully connected Layer</code> Another important contribution of Lenet5 is using fully connected layer as the classifier.
+	It is a nonlinear classfier and it maps the learned features to the labeling space. It can be explained as a 1*1 convolution
+	for the global feature space. Specifically, in part1, we learn exactly 15 8*8 kernels as the classifier.  </li></br>
+
+
+	<li><code>Pooling Layer</code> Pooling layer is mostly implement to reduce the dimension of parameters and avoid 
+	overfitting and therefore improve prediction result. Max Pooling is one of the most important contributions of AlexNet. 
+	The dimension calculation is similar to convolutional layer. In the starter code, the first maxpooling layer is with
+	kernel size = 7, stride = 7, padding = 0. If input size is 56, then the output kernel size should be: (56-7)/7+1 = 8.
+	So it's 8 by 8. </li></br>
+
+	<div style="text-align:center;">
+		<div class = "row">
+			<div class="col-12">
+				<img src="img/pooling.png", height="300", width="500" />
+				<figcaption>Figure9: Pooling layer </figcaption>
+			</div>
+		</div>
+	</div> 
+
+	<li><code>Activation layer</code> Activation layer is applied to improve the ability of representation of the linear model.
+	There are many choices of activation function such as sigmoid, ReLu and so on. In AlexNet, ReLu is used to suppress the 
+	negative input value and it shows to provide excellent optimization characteristics. 
+	<div style="text-align:center;">
+		<div class = "row">
+			<div class="col-12">
+				<img src="img/Relu.png", height="300", width="350" />
+				<figcaption>Figure10: Activation layer </figcaption>
+			</div>
+		</div>
+	</div>
+
+	<li><code>Batch normalization</code> Batch normalization is applied to each neural. It does the same job as the image normalization,
+	except that it is applied on neural. Similarly, I think it is used to make the convergence of the training faster. And it is 
+	directly added after the convolutional layer and before maxpooling layer. 
+	<div style="text-align:center;">
+		<div class = "row">
+			<div class="col-12">
+				<img src="img/BN.jpg", height="300", width="350" />
+				<figcaption>Figure11: Batch normalization </figcaption>
+			</div>
+		</div>
+	</div>
+
+	<li><code>Dropout Layer</code> I think this is the most significant contributions of AlexNet. Dropout layer means that it randomly
+	choose some of the input neurons to be ignored. Each neuron is picked based on a Bernuli distribution during training. It works because
+	it helps to reduce the learning parameters. And all the neurons are activated during test process to improve the representation of 
+	the model. 
+	<div style="text-align:center;">
+		<div class = "row">
+			<div class="col-6">
+				<img src="img/dropout1.png", height="250", width="450" />
+			</div>
+			<div class="col-6">
+				<img src="img/dropout2.png", height="250", width="450" />
+			</div>
+		</div>	
+		<figcaption>Figure12: Dropout Layer </figcaption>
+	</div>
+
+	</br>
+	All the layers included in the project part1 are mentioned above. Specifically, in the implemention of PyTorch, they are manually 
+	separated into nn.Sequetial and nn.classifier, which literally means that the network can be divided into feature representation
+	and classification with input feature. Therefore, according to the requirements, I design a network with the following architecture.
+
+	<div style="text-align:center;">
+		<div class = "row">
+			<div class="col-12">
+				<img src="img/part1_model.jpg", height="400", width="900" />
+				<figcaption>Figure13: parameters in part1 model </figcaption>
+			</div>
+		</div>
+	</div>
+	The classfier layer is a convolutional layer and its kernel size is 8 by 8. Therefore, after several experiments, I feed a 8 by 8
+	feature map into the classfier. With the given first Conv2d layer, the output dimension should be (64-9+0*2)/1+1 = 56. Hence it is 
+	10*56*56. However, after several tuning experiments, I find out that when output channels = 5, which is the number of convolutional 
+	kernel, it got better prediction result. And the output channels of the second unit structure(Conv2d, BatchNorm2d, MaxPool2d, ReLu)
+	should be the same with that in the input channels of self.classifier. Kernel and stride are tuned to fit the dimension of featuremap.
+	Otherwise, it will raise error when computer the loss function. The parameters of the loss function and optimizer is illustrated below.
+	The training epochs is set to be 70 to make sure the model can be run in about 5mins and gamma, which indicates the learning rate is set 
+	to be 1 and this larger value helps to get away from the local maximum. 
+	And with the model above, we can get Best top-1 accuracy = 55.109% > 50%. Though with different weight initialization, the accuracy of 
+	this fixed network structure may fall into short interval, but lower bound is larger than 50%.</br>
+	<div style="text-align:center;">
+		<div class = "row">
+			<div class="col-12">
+				<img src="img/part1_para.jpg", height="300", width="300" />
+				<figcaption>Figure14: parameters in loss function and optimizer</figcaption>
+			</div>
+		</div>
+	</div>
+
+	<div style="text-align:center;">
+		<div class = "row">
+			<div class="col-6">
+				<img src="img/part11.png", height="300", width="400" />
+				<figcaption>(a): training and validation loss </figcaption>
+			</div>
+			<div class="col-6">
+				<img src="img/part12.png", height="300", width="400" />
+				<figcaption>(b): log of learning rate </figcaption>
+			</div>
+		</div>
+		
+		<div class = "row">
+			<div class="col-6">
+				<img src="img/part13.png", height="300", width="400" />
+				<figcaption>(c): top1 precision </figcaption>
+			</div>
+			<div class="col-6">
+				<img src="img/part14.png", height="300", width="400" />
+				<figcaption>(d): top5 precision </figcaption>
+			</div>
+		</div>
+		<div class = "row">
+			<div class="col-12">
+				<img src="img/part1_training.jpg", height="300", width="500" />
+				<figcaption>(e): acc of part1 </figcaption>
+			</div>
+		</div>
+		<figcaption>Figure15: Performance of part1 </figcaption>
+	</div>
+	</br>
+
+	<code>Part2</code></br>
+	In part2, a pretrained alexnet model is loaded to do the feature representation jobs.
+	What we need to specify is the classfication layer according to the given prediction 
+	tasks. Fine tuning is a process to take a network model that has already been trained 
+	for a given task, and make it perform a second similar task. This is also called 
+	transfer learning. It can be implemented by simply combining the pretrained feature 
+	extraction layer and the newly added classfication layer specified by the given tasks.
+	Here, it is designed to output 15 neurons. The benefits of fine-tuning is that 
+	It part2, the change to alexnet is subtle. The main advantages of it is that we can 
+	save a lot of training time, that our network performs better in most cases and that 
+	do not need a lot of data. 
+	We just simply add a nn.Linear layer with input feature = 4096 and output features = 15.
+	And all the bias are set to be 1. Gamma value in lr_scheduler is also 1.  
+	And then I tune the gamma parameter in lr_scheduler to 1, which is the same as part1 for the same reason 
+	and finally achieves accuaracy 83.752% > 80%. The result is shown below. </br>
+	<div style="text-align:center;">
+		<div class = "row">
+			<div class="col-12">
+				<img src="img/fine_tuned_alexnet.jpg", height="400", width="500" />
+				<figcaption>Figure16: architecture of fine tuned alexnet</figcaption>
+			</div>
+		</div>
+	</div>
+
+	<div style="text-align:center;">
+		<div class = "row">
+			<div class="col-12">
+				<img src="img/part2_para.jpg", height="300", width="300" />
+				<figcaption>Figure17: parameters in loss function and optimizer</figcaption>
+			</div>
+		</div>
+	</div>
+
+	<div style="text-align:center;">
+		<div class = "row">
+			<div class="col-6">
+				<img src="img/part21.png", height="300", width="400" />
+				<figcaption>(a): training and validation loss </figcaption>
+			</div>
+			<div class="col-6">
+				<img src="img/part22.png", height="300", width="400" />
+				<figcaption>(b): log of learning rate </figcaption>
+			</div>
+		</div>
+		
+		<div class = "row">
+			<div class="col-6">
+				<img src="img/part23.png", height="300", width="400" />
+				<figcaption>(c): top1 precision </figcaption>
+			</div>
+			<div class="col-6">
+				<img src="img/part24.png", height="300", width="400" />
+				<figcaption>(d): top5 precision </figcaption>
+			</div>
+		</div>
+		<div class = "row">
+			<div class="col-12">
+				<img src="img/part2_training.jpg", height="600", width="500" />
+				<figcaption>(e): acc of part2 </figcaption>
+			</div>
+		</div>
+		<figcaption>Figure18: Performance of part2 </figcaption>
+	</div>
+	</br>
+
+</p>
+
+
+
+
+
